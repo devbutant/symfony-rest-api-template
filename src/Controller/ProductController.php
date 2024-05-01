@@ -4,30 +4,34 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Entity\Product;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Uid\Uuid;
 
 class ProductController extends AbstractController
 {
     #[Route('/product', name: 'create_product')]
-    public function createProduct(EntityManagerInterface $entityManager): Response
+    public function createProduct(Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
+        $data = json_decode($request->getContent(), true);
+
         $product = new Product();
-        $product->setName('Keyboard');
-        $product->setDescription('Ergonomic and stylish!');
+        $product->setName($data['name'] ?? 'Default Name');
+        $product->setDescription($data['description'] ?? 'Default Description');
 
-        // tell Doctrine you want to (eventually) save the Product (no queries yet)
         $entityManager->persist($product);
-
-        // actually executes the queries (i.e. the INSERT query)
         $entityManager->flush();
 
-        return new Response('Saved new product with id '.$product->getId());
+        return new JsonResponse([
+            'id' => $product->getId(),
+            'name' => $product->getName(),
+            'description' => $product->getDescription(),
+        ]);
     }
 
     #[Route('/product/{id}', name: 'product_show')]
-    public function show(EntityManagerInterface $entityManager, Uuid $id): Response
+    public function show(EntityManagerInterface $entityManager, Uuid $id): JsonResponse
     {
         $product = $entityManager->getRepository(Product::class)->find($id);
         if (!$product) {
@@ -36,6 +40,12 @@ class ProductController extends AbstractController
             );
         }
 
-        return new Response('Check out this great product: '.$product->getName());
+        $productData = [
+            'id' => $product->getId(),
+            'name' => $product->getName(),
+            'description' => $product->getDescription(),
+        ];
+    
+        return new JsonResponse($productData);
     }
 }
