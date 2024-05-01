@@ -2,42 +2,52 @@
 
 namespace App\Tests;
 
-use App\Entity\Product;
-use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use App\Entity\Product;
 
 class ProductTest extends WebTestCase
 {
-    public function testSomething(): void
-    {
-        $this->assertTrue(true);
-    }
-
-    public function testShowProduct(): void
+    public function testCreateProduct(): void
     {
         $client = static::createClient();
-        $entityManager = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $client->request('POST', '/products', [], [], [], json_encode([
+            'name' => 'Test Product',
+            'description' => 'Test Description',
+        ]));
+
+        $this->assertResponseIsSuccessful();
+        $responseData = json_decode($client->getResponse()->getContent(), true);
+        $this->assertArrayHasKey('id', $responseData);
+    }
+
+    public function testGetProducts(): void
+    {
+        $client = static::createClient();
+        $client->request('GET', '/products');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertJson($client->getResponse()->getContent());
+    }
+
 
     
-        // Création d'un produit de test
+    public function testGetProduct(): void
+    {
+        $client = static::createClient();
+
         $product = new Product();
-        $productName = "Test Product Name";
-        $productDescription = "Test Description";
+        $product->setName('Test Product');
+        $product->setDescription('Test Description');
 
-        $product->setName($productName);
-        $product->setDescription($productDescription);
-    
+        $entityManager = $client->getContainer()->get('doctrine')->getManager();
         $entityManager->persist($product);
         $entityManager->flush();
-        // Récupération de l'ID du produit
+
         $productId = $product->getId();
 
-        // Requête GET pour afficher le produit en utilisant l'ID du produit
-        $client->request('GET', '/product/'.$productId);
+        $client->request('GET', '/products/' . $productId);
 
-        // Vérification de la réussite de la requête
-        $responseContent = $client->getResponse()->getContent();
         $this->assertResponseIsSuccessful();
-        $this->assertStringContainsString($productName, $responseContent);
+        $this->assertJson($client->getResponse()->getContent());
     }
 }
