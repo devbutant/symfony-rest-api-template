@@ -11,7 +11,7 @@ use Symfony\Component\Uid\Uuid;
 
 class ProductController extends AbstractController
 {
-    #[Route('/product', name: 'create_product')]
+    #[Route('/products', name: 'create_product', methods: ['POST'])]
     public function createProduct(Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -30,8 +30,25 @@ class ProductController extends AbstractController
         ]);
     }
 
-    #[Route('/product/{id}', name: 'product_show')]
-    public function show(EntityManagerInterface $entityManager, Uuid $id): JsonResponse
+    #[Route('products', name: 'get_products', methods: ['GET'])]
+    public function getProducts(EntityManagerInterface $entityManager): JsonResponse
+    {
+        $products = $entityManager->getRepository(Product::class)->findAll();
+
+        $data = [];
+        foreach ($products as $product) {
+            $data[] = [
+                'id' => $product->getId(),
+                'name' => $product->getName(),
+                'description' => $product->getDescription(),
+            ];
+        }
+
+        return new JsonResponse($data);
+    }
+
+    #[Route('/products/{id}', name: 'get_product', methods: ['GET'])]
+    public function getProduct(EntityManagerInterface $entityManager, Uuid $id): JsonResponse
     {
         $product = $entityManager->getRepository(Product::class)->find($id);
         if (!$product) {
@@ -40,12 +57,50 @@ class ProductController extends AbstractController
             );
         }
 
-        $productData = [
+        return new JsonResponse([
             'id' => $product->getId(),
             'name' => $product->getName(),
             'description' => $product->getDescription(),
-        ];
-    
-        return new JsonResponse($productData);
+        ]);
+    }
+
+    #[Route('/products/{id}', name: 'update_product', methods: ['PATCH'])]
+    public function updateProduct(Request $request, EntityManagerInterface $entityManager, Uuid $id): JsonResponse
+    {
+        $product = $entityManager->getRepository(Product::class)->find($id);
+        if (!$product) {
+            throw $this->createNotFoundException(
+                'No product found for id '.$id
+            );
+        }
+
+        $data = json_decode($request->getContent(), true);
+
+        $product->setName($data['name'] ?? $product->getName());
+        $product->setDescription($data['description'] ?? $product->getDescription());
+
+        $entityManager->flush();
+
+        return new JsonResponse([
+            'id' => $product->getId(),
+            'name' => $product->getName(),
+            'description' => $product->getDescription(),
+        ]);
+    }
+
+    #[Route('/products/{id}', name: 'delete_product', methods: ['DELETE'])]
+    public function deleteProduct(EntityManagerInterface $entityManager, Uuid $id): JsonResponse
+    {
+        $product = $entityManager->getRepository(Product::class)->find($id);
+        if (!$product) {
+            throw $this->createNotFoundException(
+                'No product found for id '.$id
+            );
+        }
+
+        $entityManager->remove($product);
+        $entityManager->flush();
+
+        return new JsonResponse(['status' => 'Product deleted']);
     }
 }
