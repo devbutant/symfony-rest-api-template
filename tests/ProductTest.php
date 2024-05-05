@@ -11,8 +11,11 @@ class ProductTest extends WebTestCase
     public function testCreateProduct(): void
     {
         $client = static::createClient();
+        $userRepository = $client->getContainer()->get('doctrine')->getRepository(User::class);
+        $firstUser = $userRepository->findOneBy([]);
+
         $client->request('POST', '/products', [], [], [], json_encode([
-            "owner_id" => "018f49ca-08bb-75a8-bea9-160b7d5217a4",
+            "owner_id" => $firstUser->getId(),
             "name" => "souris",
             "description" => "Souris Logitech MX Master 3"
         ]));
@@ -34,9 +37,11 @@ class ProductTest extends WebTestCase
     public function testGetProduct(): void
     {
         $client = static::createClient();
+        $userRepository = $client->getContainer()->get('doctrine')->getRepository(User::class);
+        $firstUser = $userRepository->findOneBy([]);
     
         $product = new Product();
-        $product->setOwner($client->getContainer()->get('doctrine')->getRepository(User::class)->find('018f49ca-08bb-75a8-bea9-160b7d5217a4'));
+        $product->setOwner($firstUser);
         $product->setName('souris');
         $product->setDescription('Souris Logitech MX Master 3');
     
