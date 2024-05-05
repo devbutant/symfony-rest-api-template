@@ -4,6 +4,7 @@ namespace App\Tests;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use App\Entity\Product;
+use App\Entity\User;
 
 class ProductTest extends WebTestCase
 {
@@ -11,8 +12,9 @@ class ProductTest extends WebTestCase
     {
         $client = static::createClient();
         $client->request('POST', '/products', [], [], [], json_encode([
-            'name' => 'Test Product',
-            'description' => 'Test Description',
+            "owner_id" => "018f49ca-08bb-75a8-bea9-160b7d5217a4",
+            "name" => "souris",
+            "description" => "Souris Logitech MX Master 3"
         ]));
 
         $this->assertResponseIsSuccessful();
@@ -28,25 +30,24 @@ class ProductTest extends WebTestCase
         $this->assertResponseIsSuccessful();
         $this->assertJson($client->getResponse()->getContent());
     }
-
-
     
     public function testGetProduct(): void
     {
         $client = static::createClient();
-
+    
         $product = new Product();
-        $product->setName('Test Product');
-        $product->setDescription('Test Description');
-
+        $product->setOwner($client->getContainer()->get('doctrine')->getRepository(User::class)->find('018f49ca-08bb-75a8-bea9-160b7d5217a4'));
+        $product->setName('souris');
+        $product->setDescription('Souris Logitech MX Master 3');
+    
         $entityManager = $client->getContainer()->get('doctrine')->getManager();
         $entityManager->persist($product);
         $entityManager->flush();
-
+    
         $productId = $product->getId();
 
         $client->request('GET', '/products/' . $productId);
-
+    
         $this->assertResponseIsSuccessful();
         $this->assertJson($client->getResponse()->getContent());
     }
