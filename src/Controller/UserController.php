@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends AbstractController
 {
-    #[Route('/users', name: 'get_all_users', methods: ['GET'])]
+    #[Route('/api/users', name: 'get_all_users', methods: ['GET'])]
     public function get_users(EntityManagerInterface $entityManager): JsonResponse
     {
         $users = $entityManager->getRepository(User::class)->findAll();
@@ -30,7 +30,7 @@ class UserController extends AbstractController
         return new JsonResponse($data);
     }
 
-    #[Route('/users/{id}', name: 'get_user', methods: ['GET'])]
+    #[Route('/api/users/{id}', name: 'get_user', methods: ['GET'])]
     public function get_user(EntityManagerInterface $entityManager, string $id): JsonResponse
     {
         $user = $entityManager->getRepository(User::class)->find($id);
@@ -47,7 +47,7 @@ class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/users', name: 'create_user', methods: ['POST'])]
+    #[Route('/api/users', name: 'create_user', methods: ['POST'])]
     public function create_user(Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -70,7 +70,7 @@ class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/users/{id}', name: 'update_user', methods: ['PATCH'])]
+    #[Route('/api/users/{id}', name: 'update_user', methods: ['PATCH'])]
     public function update_user(Request $request, EntityManagerInterface $entityManager, string $id): JsonResponse
     {
         $user = $entityManager->getRepository(User::class)->find($id);
@@ -107,7 +107,7 @@ class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/users/{id}', name: 'delete_user', methods: ['DELETE'])]
+    #[Route('/api/users/{id}', name: 'delete_user', methods: ['DELETE'])]
     public function delete_user(EntityManagerInterface $entityManager, string $id): JsonResponse
     {
         $user = $entityManager->getRepository(User::class)->find($id);

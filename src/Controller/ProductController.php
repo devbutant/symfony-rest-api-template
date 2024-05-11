@@ -12,7 +12,7 @@ use App\Entity\User;
 
 class ProductController extends AbstractController
 {
-    #[Route('/products', name: 'get_all_products', methods: ['GET'])]
+    #[Route('/api/products', name: 'get_all_products', methods: ['GET'])]
     public function get_products(EntityManagerInterface $entityManager): JsonResponse
     {
         $products = $entityManager->getRepository(Product::class)->findAll();
@@ -30,7 +30,7 @@ class ProductController extends AbstractController
         return new JsonResponse($data);
     }
 
-    #[Route('/products/{id}', name: 'get_product', methods: ['GET'])]
+    #[Route('/api/products/{id}', name: 'get_product', methods: ['GET'])]
     public function get_product(EntityManagerInterface $entityManager, string $id): JsonResponse
     {
         $product = $entityManager->getRepository(Product::class)->find($id);
@@ -47,7 +47,7 @@ class ProductController extends AbstractController
         ]);
     }
 
-    #[Route('/products', name: 'create_product', methods: ['POST'])]
+    #[Route('/api/products', name: 'create_product', methods: ['POST'])]
     public function create_product(Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -68,7 +68,7 @@ class ProductController extends AbstractController
         ]);
     }
 
-    #[Route('/products/{id}', name: 'update_product', methods: ['PATCH'])]
+    #[Route('/api/products/{id}', name: 'update_product', methods: ['PATCH'])]
     public function update_product(Request $request, EntityManagerInterface $entityManager, string $id): JsonResponse
     {
         $product = $entityManager->getRepository(Product::class)->find($id);
@@ -94,7 +94,7 @@ class ProductController extends AbstractController
         ]);
     }
 
-    #[Route('/products/{id}', name: 'delete_product', methods: ['DELETE'])]
+    #[Route('/api/products/{id}', name: 'delete_product', methods: ['DELETE'])]
     public function delete_product(EntityManagerInterface $entityManager, string $id): JsonResponse
     {
         $product = $entityManager->getRepository(Product::class)->find($id);
