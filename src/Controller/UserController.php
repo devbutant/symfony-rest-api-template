@@ -51,10 +51,11 @@ class UserController extends AbstractController
     public function create_user(Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-
+        $passwordHashed = password_hash($data['password'], PASSWORD_DEFAULT);
+        
         $user = new User();
         $user->setEmail($data['email']);
-        $user->setPassword($data['password']);
+        $user->setPassword($passwordHashed);
         $user->setPseudo($data['pseudo']);
         $user->setBio($data['bio']);
 
@@ -79,9 +80,7 @@ class UserController extends AbstractController
         }
     
         $data = json_decode($request->getContent(), true);
-    
-        // Vérifiez chaque champ pour voir s'il est présent dans les données de la requête PATCH,
-        // si c'est le cas, mettez à jour la valeur dans l'entité utilisateur.
+
         if (isset($data['email']) && !empty($data['email'])) {
             $user->setEmail($data['email']);
         }

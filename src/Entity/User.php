@@ -54,6 +54,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->products = new ArrayCollection();
     }
 
+    public function getUsername(): string {
+        return $this->getUserIdentifier();
+    }
+
     public function getId(): ?Uuid
     {
         return $this->id;
