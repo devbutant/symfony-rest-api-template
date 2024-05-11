@@ -31,4 +31,4 @@ php bin/phpunit
 ## Configuration
 
 _Environment:_
-Environment variables can be configured in the .env file. Make sure to set the appropriate variables for your development environment, such as database connection, JWT_PASSPHRASE etc..
+Environment variables can be configured in the .env or .env.local file. Make sure to set the appropriate variables for your development environment, such as database connection, JWT_PASSPHRASE etc..
