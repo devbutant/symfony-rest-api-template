@@ -13,13 +13,17 @@ class ProductTest extends WebTestCase
         $client = static::createClient();
         $userRepository = $client->getContainer()->get('doctrine')->getRepository(User::class);
         $firstUser = $userRepository->findOneBy([]);
+    
+        $userUuid = $firstUser->getId()->toRfc4122();
 
-        $client->request('POST', '/products', [], [], [], json_encode([
-            "owner_id" => $firstUser->getId(),
+        $data = [
             "name" => "souris",
-            "description" => "Souris Logitech MX Master 3"
-        ]));
-
+            "description" => "Souris Logitech MX Master 3",
+            "owner" => "/api/users/".$userUuid
+        ];
+    
+        $client->request('POST', '/api/products', [], [], ['CONTENT_TYPE' => 'application/ld+json'], json_encode($data));
+    
         $this->assertResponseIsSuccessful();
         $responseData = json_decode($client->getResponse()->getContent(), true);
         $this->assertArrayHasKey('id', $responseData);
@@ -28,7 +32,7 @@ class ProductTest extends WebTestCase
     public function testGetProducts(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/products');
+        $client->request('GET', '/api/products');
 
         $this->assertResponseIsSuccessful();
         $this->assertJson($client->getResponse()->getContent());
@@ -51,7 +55,7 @@ class ProductTest extends WebTestCase
     
         $productId = $product->getId();
 
-        $client->request('GET', '/products/' . $productId);
+        $client->request('GET', '/api/products/' . $productId);
     
         $this->assertResponseIsSuccessful();
         $this->assertJson($client->getResponse()->getContent());
